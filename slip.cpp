@@ -36,7 +36,7 @@ vector<char> get_dgram (FILE* fp) {
   return dgram;
 }
 
-int put_dgram (vector<char> dgram, FILE* fp) {
+int put_dgram (const vector<char> &dgram, FILE* fp) {
   for (char c : dgram) {
     switch(c) {
     case SLIP_END : fputc(SLIP_ESC, fp); c = SLIP_ESC_END;
