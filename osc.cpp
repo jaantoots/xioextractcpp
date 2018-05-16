@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #define OSC_MOD 4
-#define NTP_DELTA 2208988800ll
+#define NTP_DELTA 2208988800
 
 template<class T, class Iter>
 T get_from_c (Iter &first, const Iter &last) {
@@ -34,18 +34,13 @@ uint32_t get_uint32 (Iter &first, const Iter &last) {
   return get_from_c<uint32_t>(first, last);
 }
 
-struct timetag {
-  long long secs;
-  long long frac;
-};
-
 template<class Iter>
-timetag get_time (Iter &first, const Iter &last) {
+long double get_time (Iter &first, const Iter &last) {
   // Get timestamp from unsigned 64-bit NTP timestamp
   uint32_t secs = get_uint32(first, last);
   uint32_t frac = get_uint32(first, last);
-  timetag t = { secs, frac };
-  t.secs -= NTP_DELTA; // NTP time starts at 1 Jan 1900
+  long double t = secs + (long double) frac / (1ul << 32);
+  t -= NTP_DELTA; // NTP time starts at 1 Jan 1900
   return t;
 }
 
@@ -83,6 +78,6 @@ int main (int argc, char *argv[]) {
   std::string::iterator it = in.begin();
   std::string c1 = get_string(it, in.end());
   printf("%s\n%d\n", c1.c_str(), (int) (it - in.begin()));
-  timetag c2 = get_time(it, in.end());
-  printf("%.11Lf\n%d\n", (long double) c2.secs + (long double) c2.frac / (1ul << 32), (int) (it - in.begin()));
+  long double c2 = get_time(it, in.end());
+  printf("%.11Lf\n%d\n", c2, (int) (it - in.begin()));
 }
