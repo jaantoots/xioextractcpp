@@ -48,8 +48,8 @@ uint32_t get_uint32 (Iter &first, const Iter &last) {
 /* Get timestamp from unsigned 64-bit NTP timestamp */
 template<class Iter>
 long double get_time (Iter &first, const Iter &last) {
-  uint32_t secs = get_uint32(first, last);
-  uint32_t frac = get_uint32(first, last);
+  const uint32_t secs = get_uint32(first, last);
+  const uint32_t frac = get_uint32(first, last);
   // `long double` *should* be 80-bit float
   static_assert(std::numeric_limits<long double>::digits >=
                 2*std::numeric_limits<uint32_t>::digits,
@@ -72,7 +72,7 @@ float get_float (Iter &first, const Iter &last) {
 template<class Iter>
 std::string get_string (Iter &first, const Iter &last) {
   Iter end = std::find(first, last, '\0');
-  std::string str(first, end);
+  const std::string str(first, end);
   end += ((first - end) % OSC_MOD) + OSC_MOD;
   assert(end <= last);
   first = end;
@@ -84,7 +84,7 @@ template<class Iter>
 std::string get_blob (Iter &first, const Iter &last) {
   long count = get_int32(first, last);
   assert(last - first >= count);
-  std::string str(first, first + count);
+  const std::string str(first, first + count);
   first += ((-count % OSC_MOD) + OSC_MOD) % OSC_MOD;
   assert(first <= last);
   return str;
@@ -93,8 +93,8 @@ std::string get_blob (Iter &first, const Iter &last) {
 int main (int argc, char *argv[]) {
   std::string in("#bundle\0\0\0\0\0\0\0\0\1", 16);
   std::string::iterator it = in.begin();
-  std::string c1 = get_string(it, in.end());
+  const std::string c1 = get_string(it, in.end());
   printf("%s\n%d\n", c1.c_str(), (int) (it - in.begin()));
-  long double c2 = get_time(it, in.end());
+  const long double c2 = get_time(it, in.end());
   printf("%.11Lf\n%d\n", c2, (int) (it - in.begin()));
 }
