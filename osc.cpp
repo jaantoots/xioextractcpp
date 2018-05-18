@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <cstring>
 #include <cassert>
 #include <cmath>
 #include <string>
@@ -10,17 +11,26 @@
 /* Get OSC_MOD chars as type T from Iter */
 template<class T, class Iter>
 T get_from_c (Iter &first, const Iter &last) {
+  // Get OSC_MOD bytes
   assert(last - first >= OSC_MOD);
-  union mix32_t {
-    T t;
-    uint32_t u;
-    char c[OSC_MOD];
-  } m;
-  copy_n(first, OSC_MOD, m.c);
+  unsigned char bytes[OSC_MOD];
+  copy_n(first, OSC_MOD, bytes);
   first += OSC_MOD;
   // Convert from big endian to system
-  m.u = be32toh(m.u);
-  return m.t;
+  static_assert(sizeof(uint32_t) == OSC_MOD,
+                "OSC packet size multiple must equal"
+                "the size of 32 bit unsigned integer");
+  uint32_t tmp;
+  std::memcpy(&tmp, bytes, OSC_MOD);
+  tmp = be32toh(tmp);
+  // Copy to target type
+  static_assert(std::is_trivially_copyable<T>(),
+                "Target class must be a TriviallyCopyable type");
+  static_assert(sizeof(T) == OSC_MOD,
+                "Size of target class must equal OSC packet multiple");
+  T val;
+  std::memcpy(&val, &tmp, OSC_MOD);
+  return val;
 }
 
 /* Get signed 32-bit integer from chars */
@@ -41,6 +51,10 @@ long double get_time (Iter &first, const Iter &last) {
   uint32_t secs = get_uint32(first, last);
   uint32_t frac = get_uint32(first, last);
   // `long double` *should* be 80-bit float
+  static_assert(std::numeric_limits<long double>::digits >=
+                2*std::numeric_limits<uint32_t>::digits,
+                "long double must have at least the number of digits"
+                "of two 32 bit unsigned integers");
   long double t = secs + (long double) frac / (1ul << 32);
   t -= NTP_DELTA; // NTP time starts at 1 Jan 1900
   return t;
@@ -49,7 +63,8 @@ long double get_time (Iter &first, const Iter &last) {
 /* Get IEEE-754 32 bit float */
 template<class Iter>
 float get_float (Iter &first, const Iter &last) {
-  assert(std::numeric_limits<float>::is_iec559);
+  static_assert(std::numeric_limits<float>::is_iec559,
+                "float implementation must conform to IEEE-754");
   return get_from_c<float>(first, last);
 }
 
