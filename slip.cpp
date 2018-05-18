@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <vector>
 
-using namespace std;
+#include "slip.h"
 
 #define SLIP_END '\xc0'
 #define SLIP_ESC '\xdb'
@@ -10,8 +10,8 @@ using namespace std;
 #define SLIP_ESC_ESC '\xdd'
 
 
-vector<unsigned char> get_dgram (FILE* fp) {
-  vector<unsigned char> dgram;
+std::vector<unsigned char> get_dgram (FILE* fp) {
+  std::vector<unsigned char> dgram;
   bool esc = false;
   char c;
   int ci; // note: int, not char, required to handle EOF
@@ -36,7 +36,7 @@ vector<unsigned char> get_dgram (FILE* fp) {
   return dgram;
 }
 
-int put_dgram (const vector<unsigned char> &dgram, FILE* fp) {
+int put_dgram (const std::vector<unsigned char> &dgram, FILE* fp) {
   for (char c : dgram) {
     switch(c) {
     case SLIP_END : fputc(SLIP_ESC, fp); c = SLIP_ESC_END;
@@ -63,7 +63,7 @@ int main (int argc, char *argv[]) {
   }
 
   while (!(feof(fp))) {
-    vector<unsigned char> dgram = get_dgram(fp);
+    std::vector<unsigned char> dgram = get_dgram(fp);
     if (!(dgram.empty()))
       put_dgram(dgram, stdout);
   }
