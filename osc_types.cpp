@@ -5,6 +5,8 @@
 #include <string>
 #include <algorithm>
 
+#include "osc_types.h"
+
 #define OSC_MOD 4
 #define NTP_DELTA 2208988800
 
