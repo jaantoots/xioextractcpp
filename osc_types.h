@@ -12,30 +12,30 @@
    end iterators. The iterator `first` is incremented past the
    consumed bytes. */
 
-template<class Iter>
-int32_t get_int32 (Iter &first, const Iter &last);
+template<class InputIt>
+int32_t get_int32 (InputIt &first, const InputIt &last);
 
-template<class Iter>
-uint32_t get_uint32 (Iter &first, const Iter &last);
+template<class InputIt>
+uint32_t get_uint32 (InputIt &first, const InputIt &last);
 
-template<class Iter>
-long double get_time (Iter &first, const Iter &last);
+template<class InputIt>
+long double get_time (InputIt &first, const InputIt &last);
 
-template<class Iter>
-float get_float (Iter &first, const Iter &last);
+template<class InputIt>
+float get_float (InputIt &first, const InputIt &last);
 
-template<class Iter>
-std::string get_string (Iter &first, const Iter &last);
+template<class InputIt>
+std::string get_string (InputIt &first, const InputIt &last);
 
-template<class Iter>
-std::string get_blob (Iter &first, const Iter &last);
+template<class InputIt>
+std::string get_blob (InputIt &first, const InputIt &last);
 
 #define OSC_MOD 4
 #define NTP_DELTA 2208988800
 
-/* Get OSC_MOD chars as type T from Iter */
-template<class T, class Iter>
-T get_from_c (Iter &first, const Iter &last) {
+/* Get OSC_MOD chars as type T from InputIt */
+template<class T, class InputIt>
+T get_from_c (InputIt &first, const InputIt &last) {
   // Get OSC_MOD bytes
   assert(last - first >= OSC_MOD);
   unsigned char bytes[OSC_MOD];
@@ -59,20 +59,20 @@ T get_from_c (Iter &first, const Iter &last) {
 }
 
 /* Get signed 32-bit integer from chars */
-template<class Iter>
-int32_t get_int32 (Iter &first, const Iter &last) {
+template<class InputIt>
+int32_t get_int32 (InputIt &first, const InputIt &last) {
   return get_from_c<int32_t>(first, last);
 }
 
 /* Get unsigned 32-bit integer from chars */
-template<class Iter>
-uint32_t get_uint32 (Iter &first, const Iter &last) {
+template<class InputIt>
+uint32_t get_uint32 (InputIt &first, const InputIt &last) {
   return get_from_c<uint32_t>(first, last);
 }
 
 /* Get timestamp from unsigned 64-bit NTP timestamp */
-template<class Iter>
-long double get_time (Iter &first, const Iter &last) {
+template<class InputIt>
+long double get_time (InputIt &first, const InputIt &last) {
   const uint32_t secs = get_uint32(first, last);
   const uint32_t frac = get_uint32(first, last);
   // `long double` *should* be 80-bit float
@@ -86,17 +86,17 @@ long double get_time (Iter &first, const Iter &last) {
 }
 
 /* Get IEEE-754 32 bit float */
-template<class Iter>
-float get_float (Iter &first, const Iter &last) {
+template<class InputIt>
+float get_float (InputIt &first, const InputIt &last) {
   static_assert(std::numeric_limits<float>::is_iec559,
                 "float implementation must conform to IEEE-754");
   return get_from_c<float>(first, last);
 }
 
 /* Get a \0 terminated and padded string */
-template<class Iter>
-std::string get_string (Iter &first, const Iter &last) {
-  Iter end = std::find(first, last, '\0');
+template<class InputIt>
+std::string get_string (InputIt &first, const InputIt &last) {
+  InputIt end = std::find(first, last, '\0');
   const std::string str(first, end);
   end += ((first - end) % OSC_MOD) + OSC_MOD;
   assert(end <= last);
@@ -105,8 +105,8 @@ std::string get_string (Iter &first, const Iter &last) {
 }
 
 /* Get arbitrary length binary blob */
-template<class Iter>
-std::string get_blob (Iter &first, const Iter &last) {
+template<class InputIt>
+std::string get_blob (InputIt &first, const InputIt &last) {
   long count = get_int32(first, last);
   assert(last - first >= count);
   const std::string str(first, first + count);

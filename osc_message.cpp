@@ -11,14 +11,14 @@ struct MessageException : public std::exception {
   const char * what () const throw () { return msg.c_str(); }
 };
 
-template<class Iter>
-bool is_message (const Iter &first, const Iter &last) {
+template<class InputIt>
+bool is_message (const InputIt &first, const InputIt &last) {
   assert(first < last);
   return (*first == '/');
 }
 
-template<class Iter>
-Message::Message (Iter &first, const Iter &last) {
+template<class InputIt>
+Message::Message (InputIt &first, const InputIt &last) {
   assert(is_message(first, last));
   address = get_string(first, last);
   assert(*first == ',');
@@ -35,7 +35,7 @@ Message::Message (Iter &first, const Iter &last) {
       break;
     case 't' : get_time(first, last);
       break;
-    default : throw MessageException("Unrecognised type tag " + c);
+    default : throw MessageException(std::string("Unrecognised type tag ") + c);
     }
   }
 }
