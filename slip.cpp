@@ -9,7 +9,7 @@
 #define SLIP_ESC_END '\xdc'
 #define SLIP_ESC_ESC '\xdd'
 
-
+/* Get raw datagram from SLIP encoded stream */
 std::vector<unsigned char> get_dgram (FILE* fp) {
   std::vector<unsigned char> dgram;
   bool esc = false;
@@ -36,6 +36,7 @@ std::vector<unsigned char> get_dgram (FILE* fp) {
   return dgram;
 }
 
+/* Encode raw datagram using SLIP */
 int put_dgram (const std::vector<unsigned char> &dgram, FILE* fp) {
   for (char c : dgram) {
     switch(c) {

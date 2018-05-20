@@ -11,6 +11,10 @@
 #include "osc_message.h"
 #include "osc_types.h"
 
+/* OSC Bundle class that gets its content from iterators. Contains 0
+   or more Elements, each a Message or another Bundle. Element class
+   also captures the entire packet. */
+
 class Element {
 public:
   template<class InputIt>

@@ -9,6 +9,9 @@
 
 #include "osc_types.h"
 
+/* OSC Message class that gets its content from iterators. Contains 0
+   or more Arguments. */
+
 template<class InputIt>
 bool is_message (const InputIt &first, const InputIt &last);
 
