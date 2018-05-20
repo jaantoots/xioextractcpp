@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 #ifndef SLIP_H
 #define SLIP_H
 
