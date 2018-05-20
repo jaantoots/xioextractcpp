@@ -6,24 +6,30 @@
 
 #include "osc_message.h"
 
+/* Exception for errors encountered during message parsing */
 struct MessageException : public std::exception {
   std::string msg;
   MessageException(std::string s) : msg(s) {}
   const char * what () const throw () { return msg.c_str(); }
 };
 
+/* Return true if a message starts at `first` */
 template<class InputIt>
 bool is_message (const InputIt &first, const InputIt &last) {
   assert(first < last);
   return (*first == '/');
 }
 
+/* Construct Message object from iterators */
 template<class InputIt>
 Message::Message (InputIt &first, const InputIt &last) {
+  // OSC Address Pattern begins message
   assert(is_message(first, last));
   address = get_string(first, last);
+  // OSC Type Tag String specifies arguments
   assert(*first == ',');
   types = get_string(first, last).substr(1);
+  // Parse OSC Arguments
   for (const char c : types) {
     Argument arg(c);
     switch(c) {
@@ -43,6 +49,7 @@ Message::Message (InputIt &first, const InputIt &last) {
   }
 }
 
+/* Print message contents as csv to file stream */
 void Message::put_csv (FILE* fp) {
   fprintf(fp, "%s", address.c_str());
   for (const Argument arg : args) {
@@ -59,7 +66,7 @@ void Message::put_csv (FILE* fp) {
       break;
     case 't' : fprintf(fp, ",%.11Lf", arg.t);
       break;
-    default : assert(!"type tag with printing not implemented");
+    default : assert(!"type tag printing not implemented");
     }
   }
 }
