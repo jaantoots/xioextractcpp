@@ -22,6 +22,10 @@ namespace osc {
         break;
       case 't' : fprintf(fp, ",%.11Lf", arg.t);
         break;
+      case 'T' :
+      case 'F' :
+        fprintf(fp, ",%s", arg.o ? "True" : "False");
+        break;
       default : assert(!"type tag printing not implemented");
       }
     }

@@ -25,6 +25,7 @@ namespace osc {
     std::string s;
     std::string b;
     long double t;
+    bool o;
   };
 
   class Message {
@@ -74,6 +75,10 @@ namespace osc {
       case 'b' : arg.b = get_blob(first, last);
         break;
       case 't' : arg.t = get_time(first, last);
+        break;
+      case 'T' : arg.o = true;
+        break;
+      case 'F' : arg.o = false;
         break;
       default :
         throw MessageException(std::string("Unrecognised type tag ") + c);
