@@ -4,7 +4,7 @@
 #include "osc_message.h"
 
 /* Print message contents as csv to file stream */
-void Message::put_csv (FILE* fp) {
+void Message::put_csv (FILE* fp) const {
   fprintf(fp, "%s", address.c_str());
   for (const Argument arg : args) {
     switch(arg.type) {

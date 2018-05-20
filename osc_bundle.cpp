@@ -4,37 +4,33 @@
 
 #include "osc_bundle.h"
 #include "osc_message.h"
-#include "osc_types.h"
 
-/* Exception for errors encountered during message parsing */
-struct BundleException : public std::exception {
-  std::string msg;
-  BundleException(std::string s) : msg(s) {}
-  const char * what () const throw () { return msg.c_str(); }
-};
-
-/* Construct Bundle object from iterators */
-template<class InputIt>
-Bundle::Bundle (InputIt &first, const InputIt &last) {
-  // OSC String "#bundle" begins bundle
-  std::string b = get_string(first, last);
-  assert(b == "#bundle");
-  // OSC Time Tag is next
-  time = get_time(first, last);
-  // Parse OSC Bundle Elements
-  while (first < last) {
-    continue;
+/* Print element contents as csv to file stream */
+void Element::put_csv (FILE* fp) const {
+  switch(type) {
+  case 'm' : m->put_csv(fp);
+    break;
+  case 'b' : b->put_csv(fp);
+    break;
+  default : assert(!"bad element type");
   }
-  assert(first == last);
+}
+
+/* Print bundle contents as csv to file stream */
+void Bundle::put_csv (FILE* fp) const {
+  fprintf(fp, "%.11Lf", time);
+  for (const Element el : elem) {
+    fprintf(fp, ",");
+    el.put_csv(fp);
+  }
 }
 
 int main (int argc, char *argv[]) {
-  std::string in("#bundle\0\0\0\0\0\0\0\0\1", 16);
+  std::string in("#bundle\0\0\0\0\0\0\0\0\1\0\0\0\x28/addr\0\0\0,stb\0\0\0\0bundle\0\0\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\2\x0f\x00\0\0\0\0\0\x3c#bundle\0\0\0\0\0\0\0\0\1\0\0\0\x28/addr\0\0\0,stb\0\0\0\0bundle\0\0\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\2\x0f\x00\0\0", 124);
   std::string::iterator it = in.begin();
-  const std::string c1 = get_string(it, in.end());
-  printf("%s\n%d\n", c1.c_str(), (int) (it - in.begin()));
-  const long double c2 = get_time(it, in.end());
-  printf("%.11Lf\n%d\n", c2, (int) (it - in.begin()));
+  Bundle b = Bundle(it, in.end());
+  b.put_csv(stdout);
+  printf("\n");
 
   std::string is("/addr\0\0\0,stb\0\0\0\0bundle\0\0\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\2\x0f\x00\0\0", 40);
   std::string::iterator itt = is.begin();

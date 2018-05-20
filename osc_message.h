@@ -3,6 +3,7 @@
 #define OSC_MESSAGE_H
 
 #include <cassert>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -22,11 +23,11 @@ struct Argument {
 };
 
 class Message {
- public:
+public:
   template<class InputIt>
   Message (InputIt &first, const InputIt &last);
-  void put_csv (FILE* fp);
- private:
+  void put_csv (FILE* fp) const;
+private:
   std::string address;
   std::string types;
   std::vector<Argument> args;
