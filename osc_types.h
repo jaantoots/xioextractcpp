@@ -109,9 +109,11 @@ template<class InputIt>
 std::string get_blob (InputIt &first, const InputIt &last) {
   long count = get_int32(first, last);
   assert(last - first >= count);
-  const std::string str(first, first + count);
-  first += ((-count % OSC_MOD) + OSC_MOD) % OSC_MOD;
-  assert(first <= last);
+  InputIt end = first + count;
+  const std::string str(first, end);
+  end += ((-count % OSC_MOD) + OSC_MOD) % OSC_MOD;
+  assert(end <= last);
+  first = end;
   return str;
 }
 
