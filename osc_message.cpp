@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdio>
 #include <string>
 
 #include "osc_types.h"
@@ -24,7 +25,7 @@ Message::Message (InputIt &first, const InputIt &last) {
   assert(*first == ',');
   types = get_string(first, last).substr(1);
   for (const char c : types) {
-    Argument arg;
+    Argument arg(c);
     switch(c) {
     case 'i' : arg.i = get_int32(first, last);
       break;
@@ -42,6 +43,27 @@ Message::Message (InputIt &first, const InputIt &last) {
   }
 }
 
+void Message::put_csv (FILE* fp) {
+  fprintf(fp, "%s", address.c_str());
+  for (const Argument arg : args) {
+    switch(arg.type) {
+    case 'i' : fprintf(fp, ",%d", arg.i);
+      break;
+    case 'f' : fprintf(fp, ",%.11g", arg.f);
+      break;
+    case 's' : fprintf(fp, ",%s", arg.s.c_str());
+      break;
+    case 'b' : fprintf(fp, ",0x");
+      for (unsigned char c : arg.b)
+        fprintf(fp, "%.2hhx", c);
+      break;
+    case 't' : fprintf(fp, ",%.11Lf", arg.t);
+      break;
+    default : assert(!"type tag with printing not implemented");
+    }
+  }
+}
+
 int main (int argc, char *argv[]) {
   std::string in("#bundle\0\0\0\0\0\0\0\0\1", 16);
   std::string::iterator it = in.begin();
@@ -50,8 +72,10 @@ int main (int argc, char *argv[]) {
   const long double c2 = get_time(it, in.end());
   printf("%.11Lf\n%d\n", c2, (int) (it - in.begin()));
 
-  std::string is("/addr\0\0\0,s\0\0bundle\0\0", 20);
+  std::string is("/addr\0\0\0,stb\0\0\0\0bundle\0\0\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\2\x0f\x00\0\0", 40);
   std::string::iterator itt = is.begin();
-  Message(itt, is.end());
+  Message msg = Message(itt, is.end());
+  msg.put_csv(stdout);
+  printf("\n");
   return 0;
 }

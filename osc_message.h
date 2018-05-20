@@ -9,6 +9,8 @@ template<class InputIt>
 bool is_message (const InputIt &first, const InputIt &last);
 
 struct Argument {
+  Argument(char t) : type(t) {}
+  char type;
   int32_t i;
   float f;
   std::string s;
@@ -20,6 +22,7 @@ class Message {
  public:
   template<class InputIt>
     Message (InputIt &first, const InputIt &last);
+  void put_csv (FILE* fp);
  private:
   std::string address;
   std::string types;
