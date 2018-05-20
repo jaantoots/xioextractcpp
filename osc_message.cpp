@@ -22,21 +22,23 @@ Message::Message (InputIt &first, const InputIt &last) {
   assert(is_message(first, last));
   address = get_string(first, last);
   assert(*first == ',');
-  type_tag = get_string(first, last);
-  for (const char c : type_tag.substr(1)) {
+  types = get_string(first, last).substr(1);
+  for (const char c : types) {
+    Argument arg;
     switch(c) {
-    case 'i' : get_int32(first, last);
+    case 'i' : arg.i = get_int32(first, last);
       break;
-    case 'f' : get_float(first, last);
+    case 'f' : arg.f = get_float(first, last);
       break;
-    case 's' : get_string(first, last);
+    case 's' : arg.s = get_string(first, last);
       break;
-    case 'b' : get_blob(first, last);
+    case 'b' : arg.b = get_blob(first, last);
       break;
-    case 't' : get_time(first, last);
+    case 't' : arg.t = get_time(first, last);
       break;
     default : throw MessageException(std::string("Unrecognised type tag ") + c);
     }
+    args.push_back(arg);
   }
 }
 
