@@ -17,9 +17,9 @@ int main (int argc, char *argv[]) {
   }
 
   while (!(feof(fp))) {
-    std::vector<unsigned char> dgram = get_dgram(fp);
+    std::vector<unsigned char> dgram = slip::get_dgram(fp);
     if (!(dgram.empty()))
-      put_dgram(dgram, stdout);
+      slip::put_dgram(dgram, stdout);
   }
 
   if (ferror(fp))

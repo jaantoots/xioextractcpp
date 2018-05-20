@@ -5,11 +5,15 @@
 #include <cstdio>
 #include <vector>
 
-/* Methods to encode and decode between SLIP and unsigned char
-   vectors. */
+namespace slip {
 
-std::vector<unsigned char> get_dgram (FILE* fp);
+  /* Methods to encode and decode between SLIP and unsigned char
+     vectors. */
 
-int put_dgram (const std::vector<unsigned char> &dgram, FILE* fp);
+  std::vector<unsigned char> get_dgram (FILE* fp);
+
+  int put_dgram (const std::vector<unsigned char> &dgram, FILE* fp);
+
+}
 
 #endif
