@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "slip.h"
+#include "osc_bundle.h"
 
 int main (int argc, char *argv[]) {
   if (argc != 2) {
@@ -18,8 +19,11 @@ int main (int argc, char *argv[]) {
 
   while (!(feof(fp))) {
     std::vector<unsigned char> dgram = slip::get_dgram(fp);
-    if (!(dgram.empty()))
-      slip::put_dgram(dgram, stdout);
+    if (!(dgram.empty())) {
+      auto it = dgram.begin();
+      osc::Element(it, dgram.end()).put_csv(stdout);
+    }
+    printf("\n");
   }
 
   if (ferror(fp))

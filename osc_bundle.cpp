@@ -28,18 +28,3 @@ namespace osc {
   }
 
 }
-
-int main (int argc, char *argv[]) {
-  std::string in("#bundle\0\0\0\0\0\0\0\0\1\0\0\0\x28/addr\0\0\0,stb\0\0\0\0bundle\0\0\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\2\x0f\x00\0\0\0\0\0\x3c#bundle\0\0\0\0\0\0\0\0\1\0\0\0\x28/addr\0\0\0,stb\0\0\0\0bundle\0\0\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\2\x0f\x00\0\0", 124);
-  std::string::iterator it = in.begin();
-  osc::Bundle b = osc::Bundle(it, in.end());
-  b.put_csv(stdout);
-  printf("\n");
-
-  std::string is("/addr\0\0\0,stb\0\0\0\0bundle\0\0\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\2\x0f\x00\0\0", 40);
-  std::string::iterator itt = is.begin();
-  osc::Message msg = osc::Message(itt, is.end());
-  msg.put_csv(stdout);
-  printf("\n");
-  return 0;
-}
