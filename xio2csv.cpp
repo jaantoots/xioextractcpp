@@ -10,6 +10,21 @@
 
 const std::vector<std::string> addresses = { "/altitude", "/battery", "/button", "/earth", "/euler", "/humidity", "/linear", "/magnitudes", "/matrix", "/quaternion", "/sensors", "/temperature", "/settings" };
 
+const std::map<std::string, std::string> headers = {
+  { "/altitude", "Time (s),Altitude (m)" },
+  { "/battery", "Time (s),Percentage (%),Time To Empty (minutes),Voltage (V),Current (mA)" },
+  { "/button", "Time (s)" },
+  { "/earth", "Time (s),X (g),Y (g),Z (g)" },
+  { "/euler", "Time (s),Roll (deg),Pitch (deg),Yaw (deg)" },
+  { "/humidity", "Time (s),Humidity (%)" },
+  { "/linear", "Time (s),X (g),Y (g),Z (g)" },
+  { "/magnitudes", "Time (s),Gyroscope (deg/s),Accelerometer (g),Magnetometer (uT)" },
+  { "/matrix", "Time (s),XX,XY,XZ,YX,YY,YZ,ZX,ZY,ZZ" },
+  { "/quaternion", "Time (s),W,X,Y,Z" },
+  { "/sensors", "Time (s),Gyroscope X (deg/s),Gyroscope Y (deg/s),Gyroscope Z (deg/s),Accelerometer X (g),Accelerometer Y (g),Accelerometer Z (g),Magnetometer X (uT),Magnetometer Y (uT),Magnetometer Z (uT),Barometer (hPa)" },
+  { "/temperature", "Time (s),Processor (degC),Gyroscope And Accelerometer (degC),Environmental Sensor (degC)" }
+};
+
 void mkdir_str (std::string dir) {
   if (mkdir((dir).c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0 &&
       errno != EEXIST) {
@@ -60,8 +75,11 @@ int main (int argc, char *argv[]) {
   mkdir_str(dir);
   unsigned long bundles = 0;
   std::map<std::string, FILE*> files;
-  for (std::string addr : addresses)
+  for (std::string addr : addresses) {
     files[addr] = file_open(dir + "/" + addr.substr(1) + ".csv", "w");
+    if (headers.count(addr))
+      fprintf(files[addr], "%s\n", headers.at(addr).c_str());
+  }
   while (!(feof(fp))) {
     std::vector<unsigned char> dgram = slip::get_dgram(fp);
     if (!(dgram.empty())) {
@@ -76,8 +94,11 @@ int main (int argc, char *argv[]) {
           dir = outd + std::to_string(i);
           mkdir_str(dir);
           bundles = 0;
-          for (std::string addr : addresses)
+          for (std::string addr : addresses) {
             files[addr] = file_open(dir + "/" + addr.substr(1) + ".csv", "w");
+            if (headers.count(addr))
+              fprintf(files[addr], "%s\n", headers.at(addr).c_str());
+          }
         }
         elem.put_csv(files["/settings"]);
         break;
