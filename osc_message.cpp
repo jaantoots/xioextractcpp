@@ -1,6 +1,3 @@
-#include <cassert>
-#include <cstdio>
-
 #include "osc_message.h"
 
 namespace osc {

@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <cstdio>
 #include <map>
 #include <memory>
 #include <string>
@@ -25,8 +26,6 @@ namespace osc {
   public:
     template<class InputIt>
     Element (InputIt &first, const InputIt &last);
-    void put_csv (FILE* fp) const;
-    void putmsg_csv (const std::map<std::string, FILE*> files) const;
     const char type;
     std::shared_ptr<class Bundle> b;
     std::shared_ptr<Message> m;
@@ -36,8 +35,7 @@ namespace osc {
   public:
     template<class InputIt>
     Bundle (InputIt &first, const InputIt &last);
-    void put_csv (FILE* fp) const;
-    void putmsg_csv (const std::map<std::string, FILE*> files) const;
+    void put_csv (FILE* dfp, const std::map<std::string, FILE*> files = {}) const;
   private:
     long double time;
     std::vector<Element> elem;
