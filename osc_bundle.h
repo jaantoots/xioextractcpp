@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,13 +18,16 @@ namespace osc {
      or more Elements, each a Message or another Bundle. Element class
      also captures the entire packet. */
 
+  template<class InputIt>
+  char element_type (const InputIt &first, const InputIt &last);
+
   class Element {
   public:
     template<class InputIt>
     Element (InputIt &first, const InputIt &last);
     void put_csv (FILE* fp) const;
-  private:
-    char type;
+    void putmsg_csv (const std::map<std::string, FILE*> files) const;
+    const char type;
     std::shared_ptr<class Bundle> b;
     std::shared_ptr<Message> m;
   };
@@ -33,6 +37,7 @@ namespace osc {
     template<class InputIt>
     Bundle (InputIt &first, const InputIt &last);
     void put_csv (FILE* fp) const;
+    void putmsg_csv (const std::map<std::string, FILE*> files) const;
   private:
     long double time;
     std::vector<Element> elem;
@@ -45,15 +50,22 @@ namespace osc {
     const char * what () const throw () { return msg.c_str(); }
   };
 
+  /* Return element type as char */
+  template<class InputIt>
+  char element_type (const InputIt &first, const InputIt &last) {
+    if (is_message(first, last))
+      return 'm';
+    return 'b';
+  }
+
   /* Parse OSC Packet or Bundle Element */
   template<class InputIt>
-  Element::Element (InputIt &first, const InputIt &last) {
-    if (is_message(first, last)) {
-      type = 'm';
+  Element::Element (InputIt &first, const InputIt &last
+                    ) : type(element_type(first, last)) {
+    if (type == 'm') {
       m = std::make_shared<Message>(first, last);
     }
-    else {
-      type = 'b';
+    if (type == 'b') {
       b = std::make_shared<Bundle>(first, last);
     }
     assert(first == last);

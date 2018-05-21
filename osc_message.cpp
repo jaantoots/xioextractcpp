@@ -8,6 +8,12 @@ namespace osc {
   /* Print message contents as csv to file stream */
   void Message::put_csv (FILE* fp) const {
     fprintf(fp, "%s", address.c_str());
+    putargs_csv(fp);
+    fprintf(fp, "\n");
+  }
+
+  /* Print message arguments as csv to file stream */
+  void Message::putargs_csv (FILE* fp) const {
     for (const Argument arg : args) {
       switch(arg.type) {
       case 'i' : fprintf(fp, ",%d", arg.i);

@@ -33,8 +33,9 @@ namespace osc {
     template<class InputIt>
     Message (InputIt &first, const InputIt &last);
     void put_csv (FILE* fp) const;
-  private:
+    void putargs_csv (FILE* fp) const;
     std::string address;
+  private:
     std::string types;
     std::vector<Argument> args;
   };
