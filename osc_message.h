@@ -25,7 +25,7 @@ namespace osc {
     float f;
     std::string s;
     std::string b;
-    long double t;
+    osc_time t;
     bool o;
   };
 

@@ -18,6 +18,12 @@ namespace osc {
 
   const long NTP_DELTA = 2208988800;
 
+  struct osc_time {
+    long double f;
+    unsigned long long d;
+    bool is_double = true;
+  };
+
   template<class InputIt>
   int32_t get_int32 (InputIt &first, const InputIt &last);
 
@@ -25,7 +31,7 @@ namespace osc {
   uint32_t get_uint32 (InputIt &first, const InputIt &last);
 
   template<class InputIt>
-  long double get_time (InputIt &first, const InputIt &last);
+  osc_time get_time (InputIt &first, const InputIt &last);
 
   template<class InputIt>
   float get_float (InputIt &first, const InputIt &last);
@@ -75,16 +81,23 @@ namespace osc {
 
   /* Get timestamp from unsigned 64-bit NTP timestamp */
   template<class InputIt>
-  long double get_time (InputIt &first, const InputIt &last) {
+  osc_time get_time (InputIt &first, const InputIt &last) {
     const uint32_t secs = get_uint32(first, last);
     const uint32_t frac = get_uint32(first, last);
-    // `long double` *should* be 80-bit float
-    static_assert(std::numeric_limits<long double>::digits >=
-                  2*std::numeric_limits<uint32_t>::digits,
-                  "long double must have at least the number of digits"
-                  "of two 32 bit unsigned integers");
-    long double t = secs + (long double) frac / (1ul << 32);
-    t -= NTP_DELTA; // NTP time starts at 1 Jan 1900
+    osc_time t;
+    if (std::numeric_limits<long double>::digits >=
+        2*std::numeric_limits<uint32_t>::digits) {
+      // `long double` *should* be 80-bit float and have at least the
+      // number of digits of two 32 bit unsigned integers
+      t.f = secs + (long double) frac / (1ul << 32);
+      t.f -= NTP_DELTA; // NTP time starts at 1 Jan 1900
+    }
+    else {
+      t.is_double = false;
+      // negative time is not supported if not using 80-bit long double
+      assert(secs >= NTP_DELTA);
+      t.d = ((unsigned long long) (secs - NTP_DELTA) << 32) | frac;
+    }
     return t;
   }
 

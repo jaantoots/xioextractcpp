@@ -1,3 +1,4 @@
+#include <cmath>
 #include "osc_message.h"
 
 namespace osc {
@@ -23,7 +24,13 @@ namespace osc {
         for (unsigned char c : arg.b)
           fprintf(fp, "%.2hhx", c);
         break;
-      case 't' : fprintf(fp, ",%.11Lf", arg.t);
+      case 't' :
+        if (arg.t.is_double)
+          fprintf(fp, ",%.11Lf", arg.t.f);
+        else
+          fprintf(fp, ",%ld.%011ld", (unsigned long) (arg.t.d >> 32),
+                  std::lround((double) (arg.t.d % (1ul << 32))
+                              / (1ul <<32) * 1e11));
         break;
       case 'T' :
       case 'F' :

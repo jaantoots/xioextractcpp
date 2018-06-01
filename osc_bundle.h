@@ -37,7 +37,7 @@ namespace osc {
     Bundle (InputIt &first, const InputIt &last);
     void put_csv (FILE* dfp, const std::map<std::string, FILE*> files = {}) const;
   private:
-    long double time;
+    osc_time time;
     std::vector<Element> elem;
   };
 
